@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; // или импортируйте fetch
+import axios from "axios"; 
 import md5 from "md5";
 import ProductSearch from "./comps/ProductSearch";
 import LoadingSpinner from "./comps/LoadingSpinner";
 const ProductList = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);//хранение продуктов в state
+  const [loading, setLoading] = useState(false);//loader spinner
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 50;
   const totalPages = Math.ceil(products.length / productsPerPage);
@@ -73,7 +73,7 @@ const ProductList = () => {
   const handleClick = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-
+//рендер кнопок пагинации
   const renderPaginationButtons = () => {
     const currentPageIndex = currentPage - 1;
     const pages = [];
@@ -118,6 +118,7 @@ const ProductList = () => {
       </ul>
     );
   };
+  //функция которая создает новый массив uniqueProducts, который содержит только уникальные продукты на основе их ID.
   function filterDuplicateProducts(products) {
     const uniqueProducts = [];
     const uniqueIds = new Set();
@@ -138,12 +139,14 @@ const ProductList = () => {
     indexOfFirstProduct,
     indexOfLastProduct
   );
+  //функция которая проверяет на пустоту массива от api 
   function handleEmptyArrayResponse(response) {
     if (Array.isArray(response) && response.length === 0) {
       return { error: "Empty array response from API" };
     }
     return response;
   }
+  //поиск бренда,цены и название продукта
   const handleSearch = (query) => {
     setLoading(true);
     Promise.any(query).then(
