@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"; 
+import axios from "axios";
 import md5 from "md5";
 import ProductSearch from "./comps/ProductSearch";
 import LoadingSpinner from "./comps/LoadingSpinner";
 const ProductList = () => {
-  const [products, setProducts] = useState([]);//хранение продуктов в state
-  const [loading, setLoading] = useState(false);//loader spinner
+  const [products, setProducts] = useState([]); //хранение продуктов в state
+  const [loading, setLoading] = useState(false); //loader spinner
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 50;
   const totalPages = Math.ceil(products.length / productsPerPage);
@@ -73,7 +73,7 @@ const ProductList = () => {
   const handleClick = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
-//рендер кнопок пагинации
+  //рендер кнопок пагинации
   const renderPaginationButtons = () => {
     const currentPageIndex = currentPage - 1;
     const pages = [];
@@ -139,7 +139,7 @@ const ProductList = () => {
     indexOfFirstProduct,
     indexOfLastProduct
   );
-  //функция которая проверяет на пустоту массива от api 
+  //функция которая проверяет на пустоту массива от api
   function handleEmptyArrayResponse(response) {
     if (Array.isArray(response) && response.length === 0) {
       return { error: "Empty array response from API" };
@@ -224,7 +224,7 @@ const ProductList = () => {
   };
 
   return (
-    <div className="bg-author overflow-x-hidden ">
+    <div className="bg-author overflow-x-hidden " style={{ minHeight: 1100 }}>
       <div className="row">
         <div className="offset-3 col-8">
           <h1>Product List</h1>
