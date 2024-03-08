@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 
-const ProductSearch = ({ onSearch }) => {
+const ProductSearch = ({ onSearch, setLoading }) => {
   const [query, setQuery] = useState("");
-
+// сохраняется в state
   const handleChange = (e) => {
     setQuery(e.target.value);
   };
-
+// функция которая проверяет не пустая ли value если пустая вернет alert в другом случае отправляет value для запроса 
   const handleSubmit = (e) => {
-    if (query.trim() === "") {
+    e.preventDefault();
+
+    if (!query.trim()) {
       alert("Fill the input");
-      window.location.reload();
-    } else {
-      e.preventDefault();
-      onSearch(query);
+      return;
     }
+    onSearch(query);
+    setLoading(true);
   };
 
   return (
@@ -28,7 +29,7 @@ const ProductSearch = ({ onSearch }) => {
           placeholder="поиск бренда,названия и цены"
         />
         <button className="btn btn-primary" type="submit">
-          Search
+          Искать
         </button>
       </div>
     </form>

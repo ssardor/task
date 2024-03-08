@@ -3,13 +3,16 @@ import axios from "axios";
 import md5 from "md5";
 import ProductSearch from "./comps/ProductSearch";
 import LoadingSpinner from "./comps/LoadingSpinner";
+
+import Card from "./comps/Card";
 const ProductList = () => {
   const [products, setProducts] = useState([]); //хранение продуктов в state
-  const [loading, setLoading] = useState(false); //loader spinner
+  const [loading, setLoading] = useState(true); //loader spinner
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 50;
   const totalPages = Math.ceil(products.length / productsPerPage);
   const maxPagesToShow = 5;
+  const [ErrorMessage, setErrorMessage] = useState("");
   // console.log(products);
   const apiUrl = "https://api.valantis.store:41000/"; // Замените на реальный URL API
   const password = "Valantis"; // Пароль для доступа к API
@@ -26,6 +29,7 @@ const ProductList = () => {
     const requestData = { action, params };
 
     try {
+      setLoading(true);
       const response = await axios.post(apiUrl, requestData, {
         headers: { "X-Auth": xAuthHeader },
       });
@@ -42,6 +46,10 @@ const ProductList = () => {
           "Ошибка при отправке запроса:",
           error.response.statusText
         );
+        setErrorMessage(
+          "Ошибка при отправке запроса:",
+          error.response.statusText
+        );
       } else {
         console.error("Ошибка при отправке запроса:", error.message);
       }
@@ -49,9 +57,9 @@ const ProductList = () => {
     }
   };
   // Пример использования
+
   useEffect(() => {
     sendRequestToAPI("get_ids", { offset: 1, limit: 1000 }).then((result) => {
-      setLoading(true);
       if (result) {
         console.log("Результат запроса:", result);
         sendRequestToAPI("get_items", {
@@ -60,6 +68,7 @@ const ProductList = () => {
           if (result) {
             console.log("Результат запроса:", result);
             setProducts(result);
+            setLoading(false);
           } else {
             console.log("Запрос не выполнен.");
           }
@@ -67,7 +76,6 @@ const ProductList = () => {
       } else {
         console.log("Запрос не выполнен.");
       }
-      setLoading(false);
     });
   }, []);
   const handleClick = (pageNumber) => {
@@ -147,126 +155,112 @@ const ProductList = () => {
     return response;
   }
   //поиск бренда,цены и название продукта
-  const handleSearch = (query) => {
-    setLoading(true);
-    Promise.any(query).then(
-      sendRequestToAPI("filter", { price: +query }).then((result) => {
-        if (result) {
-          console.log("Результат запроса:", result);
-          sendRequestToAPI("get_items", {
-            ids: result,
-          }).then((result) => {
-            if (result) {
-              console.log("Результат запроса:", result);
-              const response = handleEmptyArrayResponse(result);
-              if (response.error) {
-                console.log("Error:", response.error);
+  const handleSearch = async (query) => {
+    await Promise.any(query)
+      .then(
+        //поиск цены
+        sendRequestToAPI("filter", { price: +query }).then((result) => {
+          if (result) {
+            console.log("Результат запроса:", result);
+            sendRequestToAPI("get_items", {
+              ids: result,
+            }).then((result) => {
+              if (result) {
+                console.log("Результат запроса:", result);
+                const response = handleEmptyArrayResponse(result);
+                if (response.error) {
+                  console.log("Error:", response.error);
+                } else {
+                  console.log("Response:", response);
+                  setProducts(response);
+                  setLoading(false);
+                }
               } else {
-                console.log("Response:", response);
-                setProducts(response);
+                console.log("Запрос не выполнен.");
               }
-            } else {
-              console.log("Запрос не выполнен.");
-            }
-          });
-        } else {
-          console.log("Запрос не выполнен.");
-        }
-      }),
-      sendRequestToAPI("filter", { product: query }).then((result) => {
-        if (result) {
-          console.log("Результат запроса:", result);
-          sendRequestToAPI("get_items", {
-            ids: result,
-          }).then((result) => {
-            if (result) {
-              console.log("Результат запроса:", result);
-              const response = handleEmptyArrayResponse(result);
-              if (response.error) {
-                console.log("Error:", response.error);
+            });
+          } else {
+            console.log("Запрос не выполнен.");
+          }
+        }),
+         //поиск назвыния продукта
+        sendRequestToAPI("filter", { product: query }).then((result) => {
+          if (result) {
+            console.log("Результат запроса:", result);
+            sendRequestToAPI("get_items", {
+              ids: result,
+            }).then((result) => {
+              if (result) {
+                console.log("Результат запроса:", result);
+                const response = handleEmptyArrayResponse(result);
+                if (response.error) {
+                  console.log("Error:", response.error);
+                } else {
+                  console.log("Response:", response);
+                  setProducts(response);
+                  setLoading(false);
+                }
               } else {
-                console.log("Response:", response);
-                setProducts(response);
+                console.log("Запрос не выполнен.");
               }
-            } else {
-              console.log("Запрос не выполнен.");
-            }
-          });
-        } else {
-          console.log("Запрос не выполнен.");
-        }
-      }),
-      sendRequestToAPI("filter", { brand: query }).then((result) => {
-        if (result) {
-          console.log("Результат запроса:", result);
-          sendRequestToAPI("get_items", {
-            ids: result,
-          }).then((result) => {
-            if (result) {
-              console.log("Результат запроса:", result);
-              const response = handleEmptyArrayResponse(result);
-              if (response.error) {
-                console.log("Error:", response.error);
+            });
+          } else {
+            console.log("Запрос не выполнен.");
+          }
+        }),
+         //поиск брэнда
+        sendRequestToAPI("filter", { brand: query }).then((result) => {
+          if (result) {
+            console.log("Результат запроса:", result);
+            sendRequestToAPI("get_items", {
+              ids: result,
+            }).then((result) => {
+              if (result) {
+                console.log("Результат запроса:", result);
+                const response = handleEmptyArrayResponse(result);
+                if (response.error) {
+                  console.log("Error:", response.error);
+                } else {
+                  console.log("Response:", response);
+                  setProducts(response);
+                  setLoading(false);
+                }
               } else {
-                console.log("Response:", response);
-                setProducts(response);
+                console.log("Запрос не выполнен.");
               }
-            } else {
-              console.log("Запрос не выполнен.");
-            }
-          });
-        } else {
-          console.log("Запрос не выполнен.");
-        }
-      })
-    );
-    setLoading(false);
+            });
+          } else {
+            console.log("Запрос не выполнен.");
+          }
+        })
+      )
+      .catch(console.log("REJECTED"), setErrorMessage("not foun"));
   };
-
+  console.log(ErrorMessage);
   return (
     <div className="bg-author overflow-x-hidden " style={{ minHeight: 1100 }}>
       <div className="row">
         <div className="offset-3 col-8">
           <h1>Product List</h1>
           <div className=" w-25">
-            <ProductSearch onSearch={handleSearch} />
+            <ProductSearch onSearch={handleSearch} setLoading={setLoading} />
           </div>
         </div>
       </div>
       {loading ? (
         <LoadingSpinner />
+      ) : currentProducts.length >1 ? (
+        <Card
+          currentProducts={currentProducts}
+          renderPaginationButtons={renderPaginationButtons}
+        />
       ) : (
-        <>
-          {
-            <div className="row mt-5 g-3">
-              {currentProducts.map((product) => (
-                <div className="card  offset-3 col-6 " key={product.id}>
-                  <div className="card-body">
-                    <h5 className="card-title">{product.product}</h5>
-                    <h6 className="card-subtitle mb-2 text-body-secondary">
-                      {product.id}
-                    </h6>
-                    <p className="card-text">
-                      Brand: {product.brand ? product.brand : "no brand"}
-                      <br />
-                      Price: {product.price}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          }
-        </>
+        ErrorMessage && <h1>{ErrorMessage}</h1>
       )}
-      <div className="d-flex my-3 justify-content-center">
-        <div className="">{renderPaginationButtons()}</div>
-      </div>
     </div>
   );
 };
 
-const App = () => {
-  return <ProductList />;
-};
 
-export default App;
+
+export default ProductList;
